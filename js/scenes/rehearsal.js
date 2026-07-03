@@ -25,7 +25,7 @@ export function mountRehearsal(el, state) {
 
     <div class="bridge-panel">
       <div style="margin-bottom: var(--space-2)">
-        <button class="btn btn-ghost btn-sm" id="toggleRehearsalHints" style="font-size: 0.78rem; padding: 0.35em 0.8em; opacity: 0.75; cursor: pointer; border-radius: 999px;">💡 Need ideas of what to test?</button>
+        <button class="toggle-suggestions-btn" id="toggleRehearsalHints">💡 Need ideas of what to test?</button>
         <div class="attempt-suggestions" id="rehearsalSuggestions" style="display: none; margin-top: 0.5rem;">
           ${REHEARSAL.attempts.map(att => `
             <button class="btn btn-ghost btn-sm" data-id="${att.id}" style="font-size: 0.82rem; padding: 0.45em 0.9em; margin: 4px; text-align: left;">
@@ -77,9 +77,11 @@ export function mountRehearsal(el, state) {
       if (suggestionsEl.style.display === 'none') {
         suggestionsEl.style.display = 'flex';
         toggleRehearsalHints.textContent = '💡 Hide ideas';
+        toggleRehearsalHints.classList.add('active');
       } else {
         suggestionsEl.style.display = 'none';
         toggleRehearsalHints.textContent = '💡 Need ideas of what to test?';
+        toggleRehearsalHints.classList.remove('active');
       }
     });
   }

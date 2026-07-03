@@ -290,7 +290,7 @@ export function mountTable(el, state) {
           ${chips.length ? `
             ${(step === 'greet' || step === 'act1' || step === 'act2' || step === 'act3') ? `
               <div class="hints-wrapper" style="margin-bottom: var(--space-2)">
-                <button class="btn btn-ghost btn-sm" id="toggleHints" style="font-size:0.78rem; padding: 0.35em 0.8em; opacity: 0.75; cursor: pointer; border-radius: 999px;">💡 Need suggestions?</button>
+                <button class="toggle-suggestions-btn" id="toggleHints">💡 Need suggestions?</button>
                 <div class="reply-chips" id="chips" style="display: none; margin-top: 0.5rem;">
                   ${chips.map((c, i) => `<button class="btn btn-ghost reply-chip" data-i="${i}" style="margin: 2px; font-size: 0.85rem;">${c.label}</button>`).join('')}
                 </div>
@@ -329,9 +329,11 @@ export function mountTable(el, state) {
         if (chipsEl.style.display === 'none') {
           chipsEl.style.display = 'flex';
           toggleHints.textContent = '💡 Hide suggestions';
+          toggleHints.classList.add('active');
         } else {
           chipsEl.style.display = 'none';
           toggleHints.textContent = '💡 Need suggestions?';
+          toggleHints.classList.remove('active');
         }
       });
     }
