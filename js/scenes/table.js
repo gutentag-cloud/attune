@@ -75,28 +75,31 @@ export function mountTable(el, state) {
   // opening: correlate with what actually happened in LISTEN
   const flood = state.rupture.at(-1);
   aura(flood
-    ? `Hey Maya. I was listening — the break got called on a ${flood.horseman} flag: “${flood.quote}” That would flood anyone. Before we talk it through: how are you right now?`
-    : "Hey Maya. I'm AURA. Rough conversation in the kitchen. Before we talk it through: how are you right now?");
+    ? `Hey Maya. I'm AURA, your co-regulation guide. I noticed things got heated in the kitchen (Mom said: “${flood.quote}”). That would flood anyone. Before we talk it through: how are you right now?`
+    : "Hey Maya. I'm AURA. I noticed things got heated in the kitchen. Before we talk it through: how are you right now?");
 
   function currentChoices() {
-    if (step === 'greet') return Object.keys(GREET_REPLIES).map(label => ({ label, k: 'greet' }));
+    if (step === 'greet') return [
+      { label: 'Still angry.', k: 'greet' },
+      { label: "I don't even know. Numb.", k: 'greet' }
+    ];
     if (step === 'regulate') {
       const c = [
-        { label: '🫁 Breathe with you — one minute', k: 'ex', ex: 'breathing' },
-        { label: '🧊 Cold water on my face', k: 'ex', ex: 'cold' },
+        { label: '🫁 Breathe with you — 1 min', k: 'ex', ex: 'breathing' },
+        { label: '🧊 Cold water reset', k: 'ex', ex: 'cold' },
         { label: '🤗 Pillow hug · deep pressure', k: 'ex', ex: 'pressure' },
+        { label: "Skip to finding the words", k: 'ready' }
       ];
-      if (resets > 0) c.push({ label: "I'm calmer. Let's find the words.", k: 'ready' });
       return c;
     }
     if (step === 'act1') return TRIGGER_CHIPS.map(label => ({ label, k: 'act1' }));
     if (step === 'act2') return VALUE_CHIPS.map(label => ({ label, k: 'act2' }));
     if (step === 'act3') return INTENT_CHIPS.map(label => ({ label, k: 'act3' }));
     if (step === 'draft') return [
-      { label: 'Save it → open the Bridge', k: 'save' },
+      { label: 'Send to Mom & Rehearse →', k: 'save' },
       { label: 'Rework the words', k: 'rework' },
     ];
-    if (step === 'done') return [{ label: 'Open the Bridge →', k: 'bridge' }];
+    if (step === 'done') return [{ label: 'Go to Brain System →', k: 'brain' }];
     return [];
   }
 
@@ -105,43 +108,44 @@ export function mountTable(el, state) {
     const clean = s => s.trim().replace(/[.!?]+$/, '');
     if (step === 'act1') {
       sel.trigger = clean(text);
-      aura("That's the injury under the fight. Noted — not as a fault, as a fact. Next: if tonight went the way you actually want, what would be true between you two?");
+      aura("I hear you. Defending yourself makes complete sense when you feel accused. Next: if tonight went the way you actually want, what would be true between you and Mom going forward?");
       step = 'act2';
     } else if (step === 'act2') {
       sel.value = clean(text);
-      aura('Last one. How do you want to open the repair, when you decide to?');
+      aura('Understood. Last one: how do you want to open the repair when you decide to talk to her?');
       step = 'act3';
     } else if (step === 'act3') {
       sel.intent = clean(text);
       const lcFirst = s => /^I\b/.test(s) ? s : s.charAt(0).toLowerCase() + s.slice(1);
       state.bridgeDraft = `Mom — back in the kitchen, ${lcFirst(sel.trigger)}. ${sel.value}. ${sel.intent}.`;
-      aura('Here is a first draft — your words to change, not mine to send:');
+      aura('Here is a first draft based on your words:');
       thread.push({ role: 'aura', draft: true, text: state.bridgeDraft });
       step = 'draft';
     }
   }
 
   function choose(c) {
-    if (c.k === 'bridge') { go('bridge'); return; }
+    if (c.k === 'brain') { go('brain'); return; }
     maya(c.label.replace(/^[^\w"“']+\s*/, ''));
 
     if (c.k === 'greet') {
       aura(GREET_REPLIES[c.label]);
-      aura(REGULATE_PROMPT);
+      aura("Before we find the words to repair, let's do a quick physical reset to get your body out of fight-or-flight. Pick one, or type 'skip':");
       step = 'regulate';
     } else if (c.k === 'ex') {
       exercise = c.ex;
     } else if (c.k === 'ready') {
-      aura('Okay. When Mom brought up the portal — what did it actually hit? Say it your way, or tap a suggestion.');
+      aura('Okay. Let’s look at the argument. When Mom brought up the portal — what did it actually hit? Say it your way, or select a suggestion:');
       step = 'act1';
     } else if (c.k === 'act1' || c.k === 'act2' || c.k === 'act3') {
       answerAct(c.label);
     } else if (c.k === 'save') {
       state.tableDone = true;
-      aura('Saved to your Bridge. You decide if and when it goes to Mom — nothing sends itself. And tonight gets logged to the Signature either way: the fight, the break, and how fast the repair came.');
+      state.bridgeSent = state.bridgeDraft;
+      aura('Delivered to Mom! Repair latency: 0.4 hrs. Now that you have sent the repair message, let\'s practice how Mom will react. Head over to the Brain System tab (Rehearsal mode) to test your approach!');
       step = 'done';
     } else if (c.k === 'rework') {
-      aura('Good instinct — it has to sound like you. When Mom brought up the portal, what did it actually hit?');
+      aura('Let’s try again. When Mom brought up the portal, what did it actually hit?');
       step = 'act1';
     }
     render();
@@ -160,8 +164,10 @@ export function mountTable(el, state) {
     }
     if (step === 'draft') {
       state.bridgeDraft = text;
-      aura('Even better — your words. This is the version the Bridge gets:');
-      thread.push({ role: 'aura', draft: true, text });
+      state.bridgeSent = text;
+      state.tableDone = true;
+      aura('Delivered to Mom! Repair latency: 0.4 hrs. Now that you have sent the repair message, let\'s practice how Mom will react. Head over to the Brain System tab (Rehearsal mode) to test your approach!');
+      step = 'done';
       render();
       return;
     }
@@ -170,8 +176,8 @@ export function mountTable(el, state) {
       if (/(breath|air|breathe)/.test(t)) { exercise = 'breathing'; render(); return; }
       if (/(cold|water|ice|splash)/.test(t)) { exercise = 'cold'; render(); return; }
       if (/(hug|pressure|blanket|pillow|squeeze)/.test(t)) { exercise = 'pressure'; render(); return; }
-      if (/(ready|calm|calmer|words|talk|fine now|better)/.test(t)) {
-        aura('Okay. When Mom brought up the portal — what did it actually hit? Say it your way, or tap a suggestion.');
+      if (/(ready|calm|calmer|words|talk|fine now|better|skip)/.test(t)) {
+        aura('Okay. Let’s look at the argument. When Mom brought up the portal — what did it actually hit? Say it your way, or select a suggestion:');
         step = 'act1';
         render();
         return;
@@ -197,7 +203,7 @@ export function mountTable(el, state) {
     }
     aura(reply ?? reflect(text));
     if (step === 'greet') {
-      aura(REGULATE_PROMPT);
+      aura("Before we find the words to repair, let's do a quick physical reset to get your body out of fight-or-flight. Pick an exercise below, or type 'skip':");
       step = 'regulate';
     }
     render();
@@ -272,18 +278,29 @@ export function mountTable(el, state) {
     const chips = currentChoices();
     el.innerHTML = `
       <p class="scene-kicker">Scene 3 · Maya’s phone — private. Dana cannot see this.</p>
-      <h1>Reset with AURA</h1>
-      <p class="lede">Talk to AURA the way you'd text — the chips are just shortcuts.
-      It saw tonight's flood, gets your body out of fight-or-flight first, then helps
+      <h1>AURA Chat</h1>
+      <p class="lede">Talk to AURA the way you'd text — the suggestions below are optional shortcuts.
+      It saw the kitchen argument, gets your body out of fight-or-flight first, then helps
       you find the words for the repair. This screen is yours alone.</p>
 
       <div class="aura-hub">
         <div>
           <div class="coach-chat-log" id="chatLog">${thread.map(bubble).join('')}</div>
           ${exercise ? '' : `
-          ${chips.length ? `<div class="reply-chips" id="chips">
-            ${chips.map((c, i) => `<button class="btn btn-ghost reply-chip" data-i="${i}">${c.label}</button>`).join('')}
-          </div>` : ''}
+          ${chips.length ? `
+            ${(step === 'greet' || step === 'act1' || step === 'act2' || step === 'act3') ? `
+              <div class="hints-wrapper" style="margin-bottom: var(--space-2)">
+                <button class="btn btn-ghost btn-sm" id="toggleHints" style="font-size:0.78rem; padding: 0.35em 0.8em; opacity: 0.75; cursor: pointer; border-radius: 999px;">💡 Need suggestions?</button>
+                <div class="reply-chips" id="chips" style="display: none; margin-top: 0.5rem;">
+                  ${chips.map((c, i) => `<button class="btn btn-ghost reply-chip" data-i="${i}" style="margin: 2px; font-size: 0.85rem;">${c.label}</button>`).join('')}
+                </div>
+              </div>
+            ` : `
+              <div class="reply-chips" id="chips" style="margin-bottom: var(--space-2)">
+                ${chips.map((c, i) => `<button class="btn btn-ghost reply-chip" data-i="${i}" style="margin: 2px">${c.label}</button>`).join('')}
+              </div>
+            `}
+          ` : ''}
           <div class="live-bar">
             <textarea class="field" id="sayIt" placeholder="${PLACEHOLDERS[step] ?? 'Say it your way…'}"></textarea>
             <button class="btn btn-primary" id="sendIt">Send</button>
@@ -305,6 +322,20 @@ export function mountTable(el, state) {
     el.querySelectorAll('.reply-chip').forEach(btn =>
       btn.addEventListener('click', () => choose(chips[Number(btn.dataset.i)])));
 
+    const toggleHints = el.querySelector('#toggleHints');
+    if (toggleHints) {
+      toggleHints.addEventListener('click', () => {
+        const chipsEl = el.querySelector('#chips');
+        if (chipsEl.style.display === 'none') {
+          chipsEl.style.display = 'flex';
+          toggleHints.textContent = '💡 Hide suggestions';
+        } else {
+          chipsEl.style.display = 'none';
+          toggleHints.textContent = '💡 Need suggestions?';
+        }
+      });
+    }
+
     const sayIt = el.querySelector('#sayIt');
     if (sayIt) {
       const send = () => { const v = sayIt.value; sayIt.value = ''; handleTyped(v); };
@@ -312,7 +343,7 @@ export function mountTable(el, state) {
       sayIt.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
       });
-      if (step !== 'greet') sayIt.focus();
+      if (step !== 'greet' && step !== 'done') sayIt.focus();
     }
 
     if (exercise === 'breathing') runBreathingPacer();

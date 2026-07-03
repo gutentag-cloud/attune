@@ -5,8 +5,6 @@ import { mountConsent } from './scenes/consent.js';
 import { mountListen } from './scenes/listen.js';
 import { mountBreak } from './scenes/breakscene.js';
 import { mountTable } from './scenes/table.js';
-import { mountBridge } from './scenes/bridge.js';
-import { mountDashboard } from './scenes/dashboard.js';
 import { mountRehearsal } from './scenes/rehearsal.js';
 
 export const state = {
@@ -35,8 +33,6 @@ const scenes = {
   listen: mountListen,
   break: mountBreak,
   table: mountTable,
-  bridge: mountBridge,
-  signature: mountDashboard,
   rehearsal: mountRehearsal,
 };
 
@@ -59,13 +55,8 @@ function route() {
   stage.innerHTML = '';
   nav.dataset.locked = String(!consented);
 
-  // the nav doubles as tonight's session tracker: done steps get a check
   const done = {
-    listen: state.rupture.length > 0,
-    break: state.floodedAt !== null,
     table: state.tableDone,
-    bridge: Boolean(state.bridgeSent),
-    signature: Boolean(state.bridgeSent),
     rehearsal: state.rehearsed,
   };
   nav.querySelectorAll('a').forEach(a => {
