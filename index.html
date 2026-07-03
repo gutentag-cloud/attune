@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ATTUNE — a clinical instrument for the space between people</title>
+<meta name="description" content="ATTUNE measures, repairs, and forecasts the relational climate that drives mental illness. Everything on this page stays on this page.">
+<link rel="stylesheet" href="css/attune.css">
+</head>
+<body>
+<header class="masthead">
+  <a class="wordmark" href="#/listen">ATTUNE</a>
+  <nav class="scene-nav" aria-label="Demo scenes" data-locked="true">
+    <a href="#/listen" data-scene="listen">Listen</a>
+    <a href="#/break" data-scene="break">Break</a>
+    <a href="#/table" data-scene="table">Table</a>
+    <a href="#/bridge" data-scene="bridge">Bridge</a>
+    <a href="#/signature" data-scene="signature">Signature</a>
+    <a href="#/rehearsal" data-scene="rehearsal">Rehearsal</a>
+  </nav>
+  <button class="settings-toggle" id="settingsToggle" aria-expanded="false" aria-controls="settingsDrawer">⚙︎</button>
+</header>
+
+<aside class="settings-drawer" id="settingsDrawer" hidden>
+  <h2>Live agent mode <span class="tag">optional</span></h2>
+  <p class="fine">Offline scripted agents are the default. Paste an Anthropic API key to switch
+  the parts table and rehearsal to live Claude personas. The key is held in memory only —
+  never stored, never sent anywhere except <code>api.anthropic.com</code>.</p>
+  <label class="field">
+    <span>Anthropic API key</span>
+    <input type="password" id="apiKeyInput" autocomplete="off" placeholder="sk-ant-…">
+  </label>
+  <button class="btn btn-ghost" id="applyKey">Enable live agents</button>
+  <p class="fine" id="liveModeStatus">Mode: <strong>offline / scripted</strong></p>
+</aside>
+
+<main id="stage" tabindex="-1"></main>
+
+<footer class="colophon">
+  <p><strong>Everything on this page stays on this page.</strong> No server, no telemetry,
+  no recordings. Audio is classified in the moment and discarded — only turn-level event
+  labels exist, and only here.</p>
+  <p class="fine">ATTUNE is a hackathon research demo, not a medical device. It surfaces
+  validated relational risk markers (Expressed Emotion; Gottman; ABFT); it never diagnoses.
+  If you or someone you know is in crisis: call or text <strong>988</strong> (US).</p>
+</footer>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
